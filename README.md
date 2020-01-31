@@ -5,8 +5,9 @@ Simple python 3.7+ based tool that allows you to farm gift subs, emotes and othe
 ## About
 This small application allows you to connect to a large number of streams to get some drops such as gift subs, channel bonuses (**not** channel points, see screenshot below) and emotes during special Twitch events.
 
-![Gifts](https://i.imgur.com/LKV5xRg.png)
-![Bonuses](https://i.imgur.com/ATEqoaF.png)
+![Gifts](https://i.imgur.com/LKV5xRg.png "That's only the last ones")
+![Bonuses](https://i.imgur.com/ATEqoaF.png "No idea what is that :D")
+![stramerluv](https://cdn.discordapp.com/attachments/465461809520836609/672843952134553630/unknown.png "I got all 14 emotes in 3 hours")
 
 ## Installation
 
