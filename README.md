@@ -21,12 +21,14 @@ $ pip install -r requirements.txt
 ```
 ## Usage
 ### Prerequisites
-First of all, you need to get your OAUTH token and client ID. The former is needed to connect to the Twitch IRC server and, therefore, to chats. You can get it [here](https://twitchapps.com/tmi/).  
-The latter is used to send requests to the [New Twitch API](https://dev.twitch.tv/docs/api/) for gathering data about active streams. To get the ID follow Step 1 from the link above.  
-After getting both token and ID rename `settings/local.py.skeleton` to `settings/local.py` and replace default values:
+First of all, you need to get your 2 OAUTH tokens and client ID. The first one is needed to connect to the Twitch IRC server and, therefore, to chats. You can get it [here](https://twitchapps.com/tmi/).  
+The second one is needed after the latest [Twitch policy update](https://discuss.dev.twitch.tv/t/requiring-oauth-for-helix-twitch-api-endpoints/23916). Get it [here](https://twitchapps.com/tokengen/).  
+The client ID is used to send requests to the [New Twitch API](https://dev.twitch.tv/docs/api/) for gathering data about active streams. To get the ID follow Step 1 from the link above.  
+After getting both tokens and ID rename `settings/local.py.skeleton` to `settings/local.py` and replace the default values:
 ```
 OAUTH = 'password'
 CLIENT_ID = 'client_id'
+BEARER = 'bearer'
 ```
 Also, do not forget to change `NICK` to your Twitch username (login name) in **lowercase** in `settings/base.py`:
 ```

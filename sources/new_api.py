@@ -5,7 +5,7 @@ from typing import List, Tuple
 
 import aiohttp
 
-from settings import CLIENT_ID, GAMES, MAX_CONNECTIONS, MAX_VIEWERS, MIN_VIEWERS, NEW_API_URL
+from settings import CLIENT_ID, GAMES, MAX_CONNECTIONS, MAX_VIEWERS, MIN_VIEWERS, NEW_API_URL, BEARER
 
 from sources.irc import connected_to, join_channels, part_channels
 
@@ -82,7 +82,10 @@ async def get_active_streams(session: aiohttp.ClientSession) -> List[Tuple[int, 
 
 
 async def idle(writer):
-    headers = {'Client-ID': CLIENT_ID}
+    headers = {
+        'Client-ID': CLIENT_ID,
+        'Authorization': f'Bearer {BEARER}',
+    }
     async with aiohttp.ClientSession(headers=headers) as session:
         while True:
             offline_streamers = await get_inactive_streams(session)

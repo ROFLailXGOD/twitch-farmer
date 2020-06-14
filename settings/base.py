@@ -6,6 +6,7 @@ NICK = 'zazaza691'
 NEW_API_URL = 'https://api.twitch.tv/helix/'
 OAUTH = 'token'
 CLIENT_ID = 'client_id'
+BEARER = 'bearer'
 
 GAMES = []
 MAX_CONNECTIONS = 5
