@@ -2,5 +2,5 @@
 from .base import *
 
 OAUTH = 'oauth:qwerty'
+BEARER = 'bearer '
 CLIENT_ID = '0123456789'
-BEARER = 'bearer'
