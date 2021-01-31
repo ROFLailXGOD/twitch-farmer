@@ -14,6 +14,8 @@ LOG = logging.getLogger(__name__)
 
 
 async def get_logins(session: aiohttp.ClientSession, streamer_ids: List[int]) -> List[Tuple[int, str]]:
+    if not streamer_ids:
+        return []
     params = [
         ('id', user_id)
         for user_id in streamer_ids
@@ -70,7 +72,11 @@ async def get_active_streams(session: aiohttp.ClientSession) -> List[Tuple[int, 
             if stream['user_id'] not in connected_to.keys()
             if MIN_VIEWERS <= stream['viewer_count'] <= MAX_VIEWERS
         ]
-        if not streamer_ids:
+        least_viewers = next((
+            stream['viewer_count']
+            for stream in reversed(streams['data'])
+        ), 0)
+        if not streamer_ids and least_viewers < MIN_VIEWERS:
             break
         streamers.update(await get_logins(session, streamer_ids))
         cursor = streams['pagination']['cursor']
