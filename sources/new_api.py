@@ -5,27 +5,12 @@ from typing import List, Tuple
 
 import aiohttp
 
-from settings import CLIENT_ID, GAMES, MAX_CONNECTIONS, MAX_VIEWERS, MIN_VIEWERS, NEW_API_URL, BEARER
+from settings import CHANNELS, CLIENT_ID, GAMES, MAX_CONNECTIONS, MAX_VIEWERS, MIN_VIEWERS, NEW_API_URL, BEARER
 
 from sources.irc import connected_to, join_channels, part_channels
 
 
 LOG = logging.getLogger(__name__)
-
-
-async def get_logins(session: aiohttp.ClientSession, streamer_ids: List[int]) -> List[Tuple[int, str]]:
-    if not streamer_ids:
-        return []
-    params = [
-        ('id', user_id)
-        for user_id in streamer_ids
-    ]
-    async with session.get(f'{NEW_API_URL}users', params=params) as resp:
-        users = await resp.json()
-    return [
-        (user['id'], user['login'])
-        for user in users['data']
-    ]
 
 
 async def get_inactive_streams(session: aiohttp.ClientSession) -> List[Tuple[int, str]]:
@@ -54,34 +39,52 @@ async def get_inactive_streams(session: aiohttp.ClientSession) -> List[Tuple[int
 
 async def get_active_streams(session: aiohttp.ClientSession) -> List[Tuple[int, str]]:
     cursor = ''
-    streamers = set()
+    streamers = []
 
+    if CHANNELS:
+        while len(streamers) + len(connected_to) < MAX_CONNECTIONS:
+            params = [
+                ('first', 100),
+                ('after', cursor),
+            ]
+            params += [('user_login', user) for user in CHANNELS]
+            async with session.get(f'{NEW_API_URL}streams', params=params) as resp:
+                streams = await resp.json()
+            streamers += [
+                (stream['user_id'], stream['user_login'])
+                for stream in streams['data']
+                if stream['user_id'] not in connected_to
+            ]
+            # streamers.extend(await get_logins(session, streamer_ids))
+            cursor = streams['pagination'].get('cursor', None)
+            if cursor is None:
+                break
+
+    cursor = ''
     while len(streamers) + len(connected_to) < MAX_CONNECTIONS:
-
         params = [
             ('first', 100),
             ('after', cursor),
         ]
-        if GAMES is not None:
+        if GAMES:
             params += [('game_id', game_id) for game_id in GAMES]
         async with session.get(f'{NEW_API_URL}streams', params=params) as resp:
             streams = await resp.json()
-        streamer_ids = [
-            stream['user_id']
+        if not streams['data']:
+            break
+        if streams['data'][0]['viewer_count'] < MIN_VIEWERS:
+            break
+        streamers += [
+            (stream['user_id'], stream['user_login'])
             for stream in streams['data']
-            if stream['user_id'] not in connected_to.keys()
+            if stream['user_id'] not in connected_to
             if MIN_VIEWERS <= stream['viewer_count'] <= MAX_VIEWERS
         ]
-        least_viewers = next((
-            stream['viewer_count']
-            for stream in reversed(streams['data'])
-        ), 0)
-        if not streamer_ids and least_viewers < MIN_VIEWERS:
+        cursor = streams['pagination'].get('cursor', None)
+        if cursor is None:
             break
-        streamers.update(await get_logins(session, streamer_ids))
-        cursor = streams['pagination']['cursor']
     channels_needed = MAX_CONNECTIONS - len(connected_to)
-    streamers = list(streamers)[:channels_needed]
+    streamers = streamers[:channels_needed]
     LOG.info(f'Collected {len(streamers)} channels to connect to')
     LOG.debug(streamers)
     return streamers

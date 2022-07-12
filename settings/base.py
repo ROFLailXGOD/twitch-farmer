@@ -9,6 +9,7 @@ CLIENT_ID = 'client_id'
 BEARER = 'bearer'
 
 GAMES = []
+CHANNELS = []
 MAX_CONNECTIONS = 200
 MIN_VIEWERS = 250
 MAX_VIEWERS = 3000
